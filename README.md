@@ -9,6 +9,7 @@ JavaScript Game Engine
 
 ![screenshot](./screenshot.png)
 
-Test in now on GitHub Pages: https://enrique-za.github.io/uyv-raycasting/
+Raycasting (version 1)
 
-Repository: https://github.com/Enrique-ZA/uyv-raycasting
+> Test in now on GitHub Pages: https://enrique-za.github.io/uyv-raycasting/
+> Repository: https://github.com/Enrique-ZA/uyv-raycasting
