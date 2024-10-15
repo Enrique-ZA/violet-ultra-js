@@ -3,7 +3,7 @@
 > [!WARNING]
 > This is a work In Progress! Anything can change at any moment without any notice! Use this at your own risk!
 
-JavaScript Game Engine
+JavaScript Game Engine (uyv.js)
 
 #Examples
 
