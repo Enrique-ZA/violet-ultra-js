@@ -5,7 +5,7 @@
 
 JavaScript Game Engine (uyv.js)
 
-Documentation - https://enrique-za.github.io/violet-ultra-js/
+Documentation - https://enrique-za.github.io/violet-ultra-js/ (via JSDoc)
 
 #Examples
 
