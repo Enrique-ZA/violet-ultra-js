@@ -10,7 +10,8 @@ Latest update: 16 October 2024
 
 # Documentation
 
-https://enrique-za.github.io/violet-ultra-js/ (via JSDoc)
+https://enrique-za.github.io/violet-ultra-js/ 
+via JSDoc
 
 # Examples
 
