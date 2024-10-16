@@ -5,6 +5,8 @@
 
 JavaScript Game Engine (uyv.js)
 
+Latest update: 16 October 2024
+
 Documentation - https://enrique-za.github.io/violet-ultra-js/ (via JSDoc)
 
 #Examples
@@ -16,3 +18,11 @@ Raycasting (version 1)
 > Test in now on GitHub Pages: https://enrique-za.github.io/uyv-raycasting/
 > 
 > Repository: https://github.com/Enrique-ZA/uyv-raycasting
+
+![screenshot](./screenshotA.png)
+
+Raycasting (version 2)
+
+> Test in now on GitHub Pages: https://enrique-za.github.io/uyv-raycasting-v2/
+> 
+> Repository: https://github.com/Enrique-ZA/uyv-raycasting-v2
