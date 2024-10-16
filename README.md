@@ -7,7 +7,10 @@ JavaScript Game Engine (uyv.js)
 
 Latest update: 16 October 2024
 
-Documentation - https://enrique-za.github.io/violet-ultra-js/ (via JSDoc)
+
+# Documentation
+
+https://enrique-za.github.io/violet-ultra-js/ (via JSDoc)
 
 # Examples
 
