@@ -14,6 +14,11 @@ https://enrique-za.github.io/violet-ultra-js/
 
 via JSDoc
 
+
+# Supported Browser
+
+![screenshot](./browsers.png)
+
 # Examples
 
 ![screenshot](./screenshot.png)
