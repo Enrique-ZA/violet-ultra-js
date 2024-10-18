@@ -17,7 +17,7 @@ via JSDoc
 
 # Supported Browser
 
-![screenshot](./browsers.png)
+
 
 # Examples
 
