@@ -5,8 +5,9 @@
 
 JavaScript Game Engine (uyv.js)
 
-Latest update: 16 October 2024
+Latest update: 19 October 2024
 
+- Added Quadtree class (19 October 2024)
 
 # Documentation
 
