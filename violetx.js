@@ -1,4 +1,4 @@
-const vioType = {};
+const vioType = {}; 
 vioType.Image = HTMLImageElement;
 vioType.ImageData = ImageData;
 function vioIsNumber(value) {
