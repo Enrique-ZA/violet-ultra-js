@@ -1,4 +1,4 @@
-# Violet Ultra JS | Game Engine
+# Violet JavaScript Game Engine
 
 > [!WARNING]
 > This is a work In Progress! Anything can change at any moment without any notice! Use this at your own risk!
