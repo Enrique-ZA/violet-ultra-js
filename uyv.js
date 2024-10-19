@@ -48,19 +48,8 @@ let uyvFrameCount = 0;
 let uyvLastFpsUpdate = 0;
 let uyvCurrentFps = 0;
 let uyvKey = "";
-/** @type {CanvasRenderingContext2D|null} */
 let uyvCanvasCtx;
-// Main Functions Start --------------------------------------------------------
-/**
- * Creates the main drawing canvas. It should only be
- * called once at the beginning of uyvStart()
- * @returns {{canvas: CanvasRenderingContext2D, screen: HTMLCanvasElement}}
- *
- * @param {uyvType.uint16} w
- * @param {uyvType.uint16} h
- */
 function uyvCreateScreen(w, h) {
-  /** @type {HTMLCanvasElement | null} */
   const canvas = document.createElement("canvas");
   canvas.id = "uyvCanvas";
   if (canvas === null) {
@@ -114,12 +103,7 @@ function uyvHandleKeyUp(e) {
     uyvKey = "";
   }
 }
-/**
- * Starts the engine by calling uyvStart and initiating the main loop.
- * @ignore
- */
 function uyvStartEngine() {
-  // @ts-ignore
   if (typeof window.uyvStart !== "function") {
     console.error(
       "No uyvStart function defined. Define function uyvStart() in your script.",
