@@ -1,152 +1,175 @@
-const uyvType = {};
-uyvType.Image = HTMLImageElement;
-uyvType.ImageData = ImageData;
-function uyvIsNumber(value) {
+const vioType = {};
+vioType.Image = HTMLImageElement;
+vioType.ImageData = ImageData;
+function vioIsNumber(value) {
   return typeof value === "number" && isFinite(value);
 }
-uyvType.SetBit = function(value) {
+vioType.SetBit = function(value) {
   return value ? 1 : 0;
 };
-uyvType.NormalizeBits = function(value) {
+vioType.NormalizeBits = function(value) {
   if (Array.isArray(value)) {
-    return value.map(uyvType.NormalizeBits);
+    return value.map(vioType.NormalizeBits);
   } else {
-    return uyvType.SetBit(value);
+    return vioType.SetBit(value);
   }
 };
-uyvType.SetUint8 = function(value) {
+vioType.SetUint8 = function(value) {
   return Math.max(0, Math.min(255, Math.floor(value)));
 };
-uyvType.NormalizeUint8s = function(value) {
+vioType.NormalizeUint8s = function(value) {
   if (Array.isArray(value)) {
-    return value.map(uyvType.NormalizeUint8s);
+    return value.map(vioType.NormalizeUint8s);
   } else {
-    return uyvType.SetUint8(value);
+    return vioType.SetUint8(value);
   }
 };
-uyvType.SetUint16 = function(value) {
+vioType.SetUint16 = function(value) {
   return Math.max(0, Math.min(65535, Math.floor(value)));
 };
-uyvType.NormalizeUint16s = function(value) {
+vioType.NormalizeUint16s = function(value) {
   if (Array.isArray(value)) {
-    return value.map(uyvType.NormalizeUint16s);
+    return value.map(vioType.NormalizeUint16s);
   } else {
-    return uyvType.SetUint16(value);
+    return vioType.SetUint16(value);
   }
 };
-const uyvInfinity = Number.MAX_VALUE;
-const uyvInfinityMax = Number.MAX_VALUE;
-const uyvInfinityMin = Number.MIN_VALUE;
-let uyvWidth;
-let uyvHeight;
-let uyvCurrentFillColor = null;
-let uyvCurrentStrokeColor = null;
-let uyvCurrentStrokeWeight = 1;
-let uyvDeltaTime = 0;
-let uyvPrevTimestamp = 0;
-let uyvFrameCount = 0;
-let uyvLastFpsUpdate = 0;
-let uyvCurrentFps = 0;
-let uyvKey = "";
-let uyvCanvasCtx;
-function uyvCreateScreen(w, h) {
+const vioInfinity = Number.MAX_VALUE;
+const vioInfinityMax = Number.MAX_VALUE;
+const vioInfinityMin = Number.MIN_VALUE;
+let vioWidth;
+let vioHeight;
+let vioCurrentFillColor = null;
+let vioCurrentStrokeColor = null;
+let vioCurrentStrokeWeight = 1;
+let vioDeltaTime = 0;
+let vioPrevTimestamp = 0;
+let vioFrameCount = 0;
+let vioLastFpsUpdate = 0;
+let vioCurrentFps = 0;
+let vioKey = "";
+let vioCanvasCtx;
+let vioCanvasCtxRender;
+function vioCreateScreen(w, h) {
   const canvas = document.createElement("canvas");
-  canvas.id = "uyvCanvas";
+  canvas.id = "vioCanvas";
   if (canvas === null) {
-    throw new Error("No canvas with id uyvCanvas is found");
-  } else if (canvas.getContext("2d") instanceof CanvasRenderingContext2D) {
-    uyvCanvasCtx = canvas.getContext("2d");
+    throw new Error("Violet: Error creating 2D canvas.");
   }
-  if (uyvCanvasCtx === null) {
-    throw new Error("Violet Engine Error: Error creating 2D canvas");
+  vioCanvasCtx = canvas.getContext("2d");
+  if (vioCanvasCtx === null) {
+    throw new Error("Violet: Error creating 2D canvas");
   }
   if (w < 0 || w > 7680) {
-    throw new Error("Screen width needs to be between 0 and 7680 (inclusive)");
+    throw new Error(
+      "Violet: Screen width needs to be between 0 and 7680 (inclusive)",
+    );
   }
   if (h < 0 || h > 4320) {
-    throw new Error("Screen height needs to be between 0 and 4320 (inclusive)");
+    throw new Error(
+      "Violet: height needs to be between 0 and 4320 (inclusive)",
+    );
   }
   canvas.width = w;
   canvas.height = h;
-  document.body.appendChild(canvas);
-  const uyvScreen = canvas;
-  uyvWidth = uyvCanvasCtx.canvas.width;
-  uyvHeight = uyvCanvasCtx.canvas.height;
-  return { canvas: uyvCanvasCtx, screen: uyvScreen };
+  const mainCanvas = document.createElement("canvas");
+  const ctx = mainCanvas.getContext("2d");
+  if (ctx === null) {
+    throw new Error("Violet: Error creating main canvas context");
+  }
+  mainCanvas.width = w;
+  mainCanvas.height = h;
+  vioCanvasCtxRender = ctx;
+  document.body.appendChild(mainCanvas);
+  vioWidth = vioCanvasCtx.canvas.width;
+  vioHeight = vioCanvasCtx.canvas.height;
 }
-function uyvInitializeEngine() {
-  if (typeof window.uyvPreLoad === "function") {
-    Promise.resolve(window.uyvPreLoad())
+function vioInitializeEngine() {
+  if (typeof window.vioPreLoad === "function") {
+    Promise.resolve(window.vioPreLoad())
       .then(() => {
-        uyvStartEngine();
+        vioStartEngine();
       })
       .catch((error) => {
-        console.error("Error in uyvPreLoad:", error);
+        console.error("Error in vioPreLoad:", error);
       });
   } else {
-    uyvStartEngine();
+    vioStartEngine();
   }
 }
-function uyvHandleKeyDown(e) {
-  uyvKey = e.key;
-  if (typeof window.uyvKeyDown === "function") {
-    window.uyvKeyDown();
+function vioHandleKeyDown(e) {
+  vioKey = e.key;
+  if (typeof window.vioKeyDown === "function") {
+    window.vioKeyDown();
   }
 }
-function uyvHandleKeyUp(e) {
+function vioHandleKeyUp(e) {
   const releasedKey = e.key;
-  if (typeof window.uyvKeyUp === "function") {
-    uyvKey = releasedKey;
-    window.uyvKeyUp();
+  if (typeof window.vioKeyUp === "function") {
+    vioKey = releasedKey;
+    window.vioKeyUp();
   }
-  if (uyvKey === releasedKey) {
-    uyvKey = "";
+  if (vioKey === releasedKey) {
+    vioKey = "";
   }
 }
-function uyvStartEngine() {
-  if (typeof window.uyvStart !== "function") {
+function vioStartEngine() {
+  if (typeof window.vioStart !== "function") {
     console.error(
-      "No uyvStart function defined. Define function uyvStart() in your script.",
+      "No vioStart function defined. Define function vioStart() in your script.",
     );
     return;
   }
-  if (typeof window.uyvUpdate !== "function") {
+  if (typeof window.vioUpdate !== "function") {
     console.error(
-      "No uyvUpdate function defined. Define function uyvUpdate() in your script.",
+      "No vioUpdate function defined. Define function vioUpdate() in your script.",
     );
     return;
   }
-  if (typeof window.uyvDraw !== "function") {
+  if (typeof window.vioDraw !== "function") {
     console.error(
-      "No uyvDraw function defined. Define function uyvDraw() in your script.",
+      "No vioDraw function defined. Define function vioDraw() in your script.",
     );
     return;
   }
-  window.uyvStart();
-  window.requestAnimationFrame(uyvMainLoop);
-  window.addEventListener("keydown", uyvHandleKeyDown);
-  window.addEventListener("keyup", uyvHandleKeyUp);
+  window.vioStart();
+  window.requestAnimationFrame(vioMainLoop);
+  window.addEventListener("keydown", vioHandleKeyDown);
+  window.addEventListener("keyup", vioHandleKeyUp);
 }
-function uyvMainLoop(timestamp) {
-  uyvDeltaTime = (timestamp - uyvPrevTimestamp) / 1000;
-  uyvPrevTimestamp = timestamp;
-  uyvFrameCount++;
-  if (timestamp - uyvLastFpsUpdate >= 1000) {
-    uyvCurrentFps = uyvFrameCount;
-    uyvFrameCount = 0;
-    uyvLastFpsUpdate = timestamp;
+function vioMainLoop(timestamp) {
+  vioDeltaTime = (timestamp - vioPrevTimestamp) / 1000;
+  vioPrevTimestamp = timestamp;
+  vioFrameCount++;
+  if (timestamp - vioLastFpsUpdate >= 1000) {
+    vioCurrentFps = vioFrameCount;
+    vioFrameCount = 0;
+    vioLastFpsUpdate = timestamp;
   }
-  window.uyvUpdate();
-  window.uyvDraw();
+  window.vioUpdate();
+  window.vioDraw();
+  if (vioCanvasCtx === null) {
+    throw new Error("Violet: Error creating 2D canvas.");
+  }
+  if (vioCanvasCtxRender === null) {
+    throw new Error("Violet: Error creating 2D canvas.");
+  }
+  vioCanvasCtxRender.clearRect(
+    0,
+    0,
+    vioCanvasCtxRender.canvas.width,
+    vioCanvasCtxRender.canvas.height,
+  );
+  vioCanvasCtxRender.drawImage(vioCanvasCtx.canvas, 0, 0);
   const targetFrameTime = 1000 / 300;
   const actualFrameTime = performance.now() - timestamp;
   const delay = Math.max(0, targetFrameTime - actualFrameTime);
-  setTimeout(() => window.requestAnimationFrame(uyvMainLoop), delay);
+  setTimeout(() => window.requestAnimationFrame(vioMainLoop), delay);
 }
-function uyvFrameRate() {
-  return uyvCurrentFps;
+function vioFrameRate() {
+  return vioCurrentFps;
 }
-function uyvLoadImageAndData(url) {
+function vioLoadImageAndData(url) {
   const image = new Image();
   image.src = url;
   return new Promise((resolve, reject) => {
@@ -156,7 +179,9 @@ function uyvLoadImageAndData(url) {
       canvas.height = image.height;
       const ctx = canvas.getContext("2d");
       if (ctx === null) {
-        throw new Error("The browser does not support this game engine.");
+        throw new Error(
+          "Violet: The browser does not support this game engine.",
+        );
       }
       ctx.drawImage(image, 0, 0);
       const imgData = ctx.getImageData(0, 0, image.width, image.height);
@@ -165,19 +190,41 @@ function uyvLoadImageAndData(url) {
     image.onerror = reject;
   });
 }
-function uyvGetWidth(uyvCanvasCtx) {
-  return uyvCanvasCtx.canvas.width;
+function vioGetWidth() {
+  if (vioCanvasCtx instanceof CanvasRenderingContext2D) {
+    return vioCanvasCtx.canvas.width;
+  } else {
+    throw new Error(
+      "Violet: The screen was not created properly in vioStart().",
+    );
+  }
 }
-function uyvGetHeight(uyvCanvasCtx) {
-  return uyvCanvasCtx.canvas.height;
+function vioGetHeight() {
+  if (vioCanvasCtx instanceof CanvasRenderingContext2D) {
+    return vioCanvasCtx.canvas.height;
+  } else {
+    throw new Error(
+      "Violet: The screen was not created properly in vioStart().",
+    );
+  }
 }
-function uyvTranslate(uyvCanvasCtx, x, y) {
-  uyvCanvasCtx.translate(x, y);
+function vioTranslate(x, y, ctx = vioCanvasCtx) {
+  if (ctx === null || ctx === undefined) {
+    throw new Error(
+      "Violet: The screen was not created properly in vioStart().",
+    );
+  }
+  ctx.translate(x, y);
 }
-function uyvScale(uyvCanvasCtx, x, y) {
-  uyvCanvasCtx.scale(x, y);
+function vioScale(x, y, ctx = vioCanvasCtx) {
+  if (ctx === null || ctx === undefined) {
+    throw new Error(
+      "Violet: The screen was not created properly in vioStart().",
+    );
+  }
+  ctx.scale(x, y);
 }
-class uyvColor {
+class vioColor {
   constructor(r, g, b, a) {
     this.r = r;
     this.g = g;
@@ -185,7 +232,7 @@ class uyvColor {
     this.a = a;
   }
 }
-class uyvRectangle {
+class vioRectangle {
   constructor(x, y, w, h) {
     this.x = x;
     this.y = y;
@@ -209,7 +256,7 @@ class uyvRectangle {
     );
   }
 }
-class uyvQuadTree {
+class vioQuadTree {
   constructor(boundary, n) {
     this.boundary = boundary;
     this.capacity = n;
@@ -234,34 +281,34 @@ class uyvQuadTree {
     }
   }
   subdivide() {
-    let ne = new uyvRectangle(
+    let ne = new vioRectangle(
       this.boundary.x + this.boundary.w / 2,
       this.boundary.y - this.boundary.h / 2,
       this.boundary.w / 2,
       this.boundary.h / 2,
     );
-    this.ne = new uyvQuadTree(ne, this.capacity);
-    let nw = new uyvRectangle(
+    this.ne = new vioQuadTree(ne, this.capacity);
+    let nw = new vioRectangle(
       this.boundary.x - this.boundary.w / 2,
       this.boundary.y - this.boundary.h / 2,
       this.boundary.w / 2,
       this.boundary.h / 2,
     );
-    this.nw = new uyvQuadTree(nw, this.capacity);
-    let se = new uyvRectangle(
+    this.nw = new vioQuadTree(nw, this.capacity);
+    let se = new vioRectangle(
       this.boundary.x + this.boundary.w / 2,
       this.boundary.y + this.boundary.h / 2,
       this.boundary.w / 2,
       this.boundary.h / 2,
     );
-    this.se = new uyvQuadTree(se, this.capacity);
-    let sw = new uyvRectangle(
+    this.se = new vioQuadTree(se, this.capacity);
+    let sw = new vioRectangle(
       this.boundary.x - this.boundary.w / 2,
       this.boundary.y + this.boundary.h / 2,
       this.boundary.w / 2,
       this.boundary.h / 2,
     );
-    this.sw = new uyvQuadTree(sw, this.capacity);
+    this.sw = new vioQuadTree(sw, this.capacity);
     this.hasDivided = true;
   }
   queryRectangle(rect) {
@@ -292,19 +339,19 @@ class uyvQuadTree {
     return found;
   }
   draw() {
-    if (uyvCanvasCtx === null) {
-      throw Error(
-        "Violet Ultra Error: The screen was not created properly in uyvStart().",
+    if (vioCanvasCtx === null) {
+      throw new Error(
+        "Violet: The screen was not created properly in vioStart().",
       );
     }
-    uyvStroke(uyvCanvasCtx, 255, 0, 0);
-    uyvStrokeWeight(uyvCanvasCtx, 4);
+    vioStroke(vioCanvasCtx, 255, 0, 0);
+    vioStrokeWeight(vioCanvasCtx, 4);
     for (let i = 0; i < this.elements.length; i++) {
-      uyvCircle(uyvCanvasCtx, this.elements[i].x, this.elements[i].y, 0.1);
+      vioCircle(vioCanvasCtx, this.elements[i].x, this.elements[i].y, 0.1);
     }
-    uyvStroke(uyvCanvasCtx, 255, 255, 255);
-    uyvStrokeWeight(uyvCanvasCtx, 1);
-    uyvRectStrokeCenterHalf(
+    vioStroke(vioCanvasCtx, 255, 255, 255);
+    vioStrokeWeight(vioCanvasCtx, 1);
+    vioRectStrokeCenterHalf(
       this.boundary.x,
       this.boundary.y,
       this.boundary.w,
@@ -318,7 +365,7 @@ class uyvQuadTree {
     }
   }
 }
-class uyvVector2D {
+class vioVector2D {
   constructor(x, y, data) {
     this.x = x;
     this.y = y;
@@ -327,31 +374,31 @@ class uyvVector2D {
     }
   }
   static zero() {
-    return new uyvVector2D(0, 0);
+    return new vioVector2D(0, 0);
   }
   static fromAngle(angle) {
-    return new uyvVector2D(Math.cos(angle), Math.sin(angle));
+    return new vioVector2D(Math.cos(angle), Math.sin(angle));
   }
   static fromValue(val) {
-    return new uyvVector2D(val, val);
+    return new vioVector2D(val, val);
   }
   static fromScalar(val, scalar) {
-    return new uyvVector2D(val * scalar, val * scalar);
+    return new vioVector2D(val * scalar, val * scalar);
   }
   array() {
     return [this.x, this.y];
   }
   div(other) {
-    return new uyvVector2D(this.x / other.x, this.y / other.y);
+    return new vioVector2D(this.x / other.x, this.y / other.y);
   }
   mult(other) {
-    return new uyvVector2D(this.x * other.x, this.y * other.y);
+    return new vioVector2D(this.x * other.x, this.y * other.y);
   }
   sub(other) {
-    return new uyvVector2D(this.x - other.x, this.y - other.y);
+    return new vioVector2D(this.x - other.x, this.y - other.y);
   }
   add(other) {
-    return new uyvVector2D(this.x + other.x, this.y + other.y);
+    return new vioVector2D(this.x + other.x, this.y + other.y);
   }
   lengthSqrt() {
     return this.x * this.x + this.y * this.y;
@@ -360,7 +407,7 @@ class uyvVector2D {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
   rotate90() {
-    return new uyvVector2D(-this.y, this.x);
+    return new vioVector2D(-this.y, this.x);
   }
   distanceToSqrt(other) {
     return other.sub(this).lengthSqrt();
@@ -369,14 +416,14 @@ class uyvVector2D {
     return other.sub(this).length();
   }
   scale(value) {
-    return new uyvVector2D(this.x * value, this.y * value);
+    return new vioVector2D(this.x * value, this.y * value);
   }
   normalize() {
     const len = this.length();
     if (len === 0) {
-      return new uyvVector2D(0, 0);
+      return new vioVector2D(0, 0);
     }
-    return new uyvVector2D(this.x / len, this.y / len);
+    return new vioVector2D(this.x / len, this.y / len);
   }
   lerp(other, t) {
     return other.sub(this).scale(t).add(this);
@@ -385,7 +432,7 @@ class uyvVector2D {
     return this.x * other.x + this.y * other.y;
   }
   mapFunc(f) {
-    return new uyvVector2D(f(this.x), f(this.y));
+    return new vioVector2D(f(this.x), f(this.y));
   }
 }
 function xoshiro128ss(a, b, c, d) {
@@ -402,31 +449,31 @@ function xoshiro128ss(a, b, c, d) {
     return (r >>> 0) / 4294967296;
   };
 }
-function uyvRandom() {
+function vioRandom() {
   if (arguments.length === 0) {
     return Math.random();
   }
   if (arguments.length === 1) {
-    if (!uyvIsNumber(arguments[0])) {
-      console.warn("Violet Ultra Error: Expects a number");
+    if (!vioIsNumber(arguments[0])) {
+      console.warn("Violet: Expects a number");
       return Math.random();
     }
     const min = 0;
     const max = arguments[0];
     return Math.random() * (max - min) + min;
   } else if (arguments.length === 2) {
-    if (!uyvIsNumber(arguments[0]) && !uyvIsNumber(arguments[1])) {
-      console.warn("Violet Ultra Error: Expects a number");
+    if (!vioIsNumber(arguments[0]) && !vioIsNumber(arguments[1])) {
+      console.warn("Violet: Expects a number");
       return Math.random();
     }
     const min = arguments[0];
     const max = arguments[1];
     return Math.random() * (max - min) + min;
   } else {
-    throw new Error("Violet Ultra Error: uyvRandom takes 0 to 2 arguments.");
+    throw new Error("Violet: vioRandom takes 0 to 2 arguments.");
   }
 }
-function uyvDist2D() {
+function vioDist2D() {
   if (arguments.length === 4) {
     let x1 = arguments[0];
     let y1 = arguments[1];
@@ -436,10 +483,10 @@ function uyvDist2D() {
     let dy = y2 - y1;
     return Math.sqrt(dx * dx + dy * dy);
   } else {
-    throw new Error("uyvDist2D() requires either 4 parameters (2D)");
+    throw new Error("Violet: vioDist2D() requires either 4 parameters (2D)");
   }
 }
-function uyvDist3D() {
+function vioDist3D() {
   if (arguments.length === 6) {
     let x1 = arguments[0];
     let y1 = arguments[1];
@@ -452,98 +499,117 @@ function uyvDist3D() {
     let dz = z2 - z1;
     return Math.sqrt(dx * dx + dy * dy + dz * dz);
   } else {
-    throw new Error("uyvDist3D() requires either 6 parameters (3D)");
+    throw new Error("Violet: vioDist3D() requires either 6 parameters (3D)");
   }
 }
-function uyvPush(uyvCanvasCtx) {
-  uyvCanvasCtx.save();
+function vioPush(ctx = vioCanvasCtx) {
+  if (ctx === null || ctx === undefined) {
+    throw new Error(
+      "Violet: The screen was not created properly in vioStart().",
+    );
+  }
+  ctx.save();
 }
-function uyvPop(uyvCanvasCtx) {
-  uyvCanvasCtx.restore();
+function vioPop(ctx = vioCanvasCtx) {
+  if (ctx === null || ctx === undefined) {
+    throw new Error(
+      "Violet: The screen was not created properly in vioStart().",
+    );
+  }
+  ctx.restore();
 }
-function uyvClampRGB(r, g, b) {
-  r = uyvType.NormalizeUint8s(r);
-  g = uyvType.NormalizeUint8s(g);
-  b = uyvType.NormalizeUint8s(b);
+function vioClampRGB(r, g, b) {
+  r = vioType.NormalizeUint8s(r);
+  g = vioType.NormalizeUint8s(g);
+  b = vioType.NormalizeUint8s(b);
   return { r: r, g: g, b: b };
 }
-function uyvClampConvertRgbHexString(r, g, b) {
-  const color = uyvClampRGB(r, g, b);
+function vioClampConvertRgbHexString(r, g, b) {
+  const color = vioClampRGB(r, g, b);
   const toHex = (c) => c.toString(16).padStart(2, "0");
   return `#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`;
 }
-function uyvNormalizeAlpha(val) {
+function vioNormalizeAlpha(val) {
   return Math.max(0, Math.min(1, val / 255));
 }
-function uyvFill(uyvCanvasCtx, r, g, b, a = 1) {
-  uyvCurrentFillColor = `rgba(${r}, ${g}, ${b}, ${a})`;
-  uyvCanvasCtx.fillStyle = uyvCurrentFillColor;
-}
-function uyvNoFill() {
-  uyvCurrentFillColor = null;
-}
-function uyvStroke(uyvCanvasCtx, r, g, b, a = 1) {
-  uyvCurrentStrokeColor = `rgba(${r}, ${g}, ${b}, ${a})`;
-  uyvCanvasCtx.strokeStyle = uyvCurrentStrokeColor;
-}
-function uyvNoStroke() {
-  uyvCurrentStrokeColor = null;
-}
-function uyvStrokeWeight(uyvCanvasCtx, weight) {
-  const actualWeight = Math.max(0, weight);
-  uyvCurrentStrokeWeight = actualWeight;
-  uyvCanvasCtx.lineWidth = actualWeight;
-}
-function uyvBackground(r, g, b, canvasCtx = uyvCanvasCtx) {
-  if (canvasCtx instanceof CanvasRenderingContext2D && canvasCtx !== null) {
-    canvasCtx.fillStyle = uyvClampConvertRgbHexString(r, g, b);
-    uyvRectFill(
-      canvasCtx,
-      0,
-      0,
-      uyvGetWidth(canvasCtx),
-      uyvGetHeight(canvasCtx),
+function vioFill(r, g, b, a = 1, ctx = vioCanvasCtx) {
+  vioCurrentFillColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+  if (ctx === null || ctx === undefined) {
+    throw new Error(
+      "Violet: The screen was not created properly in vioStart().",
     );
   }
+  ctx.fillStyle = vioCurrentFillColor;
 }
-function uyvLine(uyvCanvasCtx, x1, y1, x2, y2) {
-  uyvCanvasCtx.beginPath();
-  uyvCanvasCtx.moveTo(x1, y1);
-  uyvCanvasCtx.lineTo(x2, y2);
-  if (uyvCurrentStrokeColor) {
-    uyvCanvasCtx.stroke();
+function vioNoFill() {
+  vioCurrentFillColor = null;
+}
+function vioStroke(r, g, b, a = 1, ctx = vioCanvasCtx) {
+  vioCurrentStrokeColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+  ctx.strokeStyle = vioCurrentStrokeColor;
+}
+function vioNoStroke() {
+  vioCurrentStrokeColor = null;
+}
+function vioStrokeWeight(weight, ctx = vioCanvasCtx) {
+  const actualWeight = Math.max(0, weight);
+  vioCurrentStrokeWeight = actualWeight;
+  ctx.lineWidth = actualWeight;
+}
+function vioBackground(r, g, b, ctx = vioCanvasCtx) {
+  if (ctx === null || ctx === undefined) {
+    throw new Error(
+      "Violet: The screen was not created properly in vioStart().",
+    );
+  }
+  if (ctx instanceof CanvasRenderingContext2D && ctx !== null) {
+    ctx.fillStyle = vioClampConvertRgbHexString(r, g, b);
+    vioRectFill(0, 0, vioGetWidth(), vioGetHeight());
+  }
+}
+function vioLine(x1, y1, x2, y2, ctx = vioCanvasCtx) {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  if (vioCurrentStrokeColor) {
+    ctx.stroke();
   } else {
-    throw new Error("A stroke color is needed to draw a line.");
+    throw new Error("Violet: A stroke color is needed to draw a line.");
   }
 }
-function uyvPoint(uyvCanvasCtx, x, y, radius = 3) {
-  uyvCanvasCtx.beginPath();
+function vioPoint(vioCanvasCtx, x, y, radius = 3) {
+  vioCanvasCtx.beginPath();
   const actualRadius = Math.max(0.0000000009, radius);
-  uyvCanvasCtx.arc(x, y, actualRadius, 0, 2 * Math.PI);
-  if (uyvCurrentFillColor) {
-    uyvCanvasCtx.fill();
+  vioCanvasCtx.arc(x, y, actualRadius, 0, 2 * Math.PI);
+  if (vioCurrentFillColor) {
+    vioCanvasCtx.fill();
   }
-  if (uyvCurrentStrokeColor) {
-    uyvCanvasCtx.stroke();
+  if (vioCurrentStrokeColor) {
+    vioCanvasCtx.stroke();
   }
 }
-function uyvCircle(uyvCanvasCtx, x, y, radius) {
-  uyvCanvasCtx.beginPath();
+function vioCircle(x, y, radius, ctx = vioCanvasCtx) {
+  ctx.beginPath();
   const actualRadius = Math.max(0, radius);
-  uyvCanvasCtx.arc(x, y, actualRadius, 0, 2 * Math.PI);
-  if (uyvCurrentFillColor) {
-    uyvCanvasCtx.fill();
+  ctx.arc(x, y, actualRadius, 0, 2 * Math.PI);
+  if (vioCurrentFillColor) {
+    ctx.fill();
   }
-  if (uyvCurrentStrokeColor) {
-    uyvCanvasCtx.stroke();
+  if (vioCurrentStrokeColor) {
+    ctx.stroke();
   }
 }
-function uyvRectFill(uyvCanvasCtx, x, y, w, h) {
-  uyvCanvasCtx.fillRect(x, y, w, h);
+function vioRectFill(x, y, w, h, ctx = vioCanvasCtx) {
+  if (ctx === null || ctx === undefined) {
+    throw new Error(
+      "Violet: The screen was not created properly in vioStart().",
+    );
+  }
+  ctx.fillRect(x, y, w, h);
 }
-function uyvRectFillCenter(x, y, w, h, canvasCtx = uyvCanvasCtx) {
+function vioRectFillCenter(x, y, w, h, canvasCtx = vioCanvasCtx) {
   if (canvasCtx === null) {
-    throw new Error("Violet Ultra Error: Error the canvas is null");
+    throw new Error("Violet: Error the canvas is null");
   } else if (canvasCtx instanceof CanvasRenderingContext2D) {
     canvasCtx.save();
     canvasCtx.translate(x, y);
@@ -551,12 +617,12 @@ function uyvRectFillCenter(x, y, w, h, canvasCtx = uyvCanvasCtx) {
     canvasCtx.restore();
   }
 }
-function uyvRectStroke(uyvCanvasCtx, x, y, w, h) {
-  uyvCanvasCtx.strokeRect(x, y, w, h);
+function vioRectStroke(vioCanvasCtx, x, y, w, h) {
+  vioCanvasCtx.strokeRect(x, y, w, h);
 }
-function uyvRectStrokeCenter(x, y, w, h, canvasCtx = uyvCanvasCtx) {
+function vioRectStrokeCenter(x, y, w, h, canvasCtx = vioCanvasCtx) {
   if (canvasCtx === null) {
-    throw new Error("Violet Ultra Error: Error the canvas is null");
+    throw new Error("Violet: Error the canvas is null");
   } else if (canvasCtx instanceof CanvasRenderingContext2D) {
     canvasCtx.save();
     canvasCtx.translate(x, y);
@@ -564,9 +630,9 @@ function uyvRectStrokeCenter(x, y, w, h, canvasCtx = uyvCanvasCtx) {
     canvasCtx.restore();
   }
 }
-function uyvRectStrokeCenterHalf(x, y, w, h, canvasCtx = uyvCanvasCtx) {
+function vioRectStrokeCenterHalf(x, y, w, h, canvasCtx = vioCanvasCtx) {
   if (canvasCtx === null) {
-    throw new Error("Violet Ultra Error: Error the canvas is null");
+    throw new Error("Violet: Error the canvas is null");
   } else if (canvasCtx instanceof CanvasRenderingContext2D) {
     canvasCtx.save();
     canvasCtx.translate(x, y);
@@ -575,5 +641,5 @@ function uyvRectStrokeCenterHalf(x, y, w, h, canvasCtx = uyvCanvasCtx) {
   }
 }
 window.addEventListener("load", function() {
-  uyvInitializeEngine();
+  vioInitializeEngine();
 });
