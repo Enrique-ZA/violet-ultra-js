@@ -29,6 +29,7 @@ Quadtree - Particle Collision
 > 
 > Repository: https://github.com/Enrique-ZA/vio-quadtree
 
+
 ![screenshot](./screenshot.png)
 
 Raycasting (version 1)
@@ -36,6 +37,7 @@ Raycasting (version 1)
 > Test in now on GitHub Pages: https://enrique-za.github.io/uyv-raycasting/
 > 
 > Repository: https://github.com/Enrique-ZA/uyv-raycasting
+
 
 ![screenshot](./screenshotA.png)
 
